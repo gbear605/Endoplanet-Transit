@@ -30,7 +30,7 @@ no_rotate = 0
 #(64,[13,14])
 inside_split = {"venus":((32,[8]), (16,[3])),"mercury":((256,[159,160,161]), (256,[166,167,168]))}
 #The section of the sun that doesn't contain the transit
-outside_split = {"venus":(((32,range(8) + range(9,32)), (16,range(3) + range(4,16)))),"mercury":((256,range(159) + range(162,256)), (1,[0]))}
+outside_split = {"venus":(((32,range(8) + range(9,32)), (16,range(3) + range(4,16)))),"mercury":((256,range(159) + range(162,256)), ((256,range(166) + range(169,256))))}
 
 no_split = {"venus":(((1,[0]), (1,[0]))),"mercury":(((1,[0]), (1,[0])))}
 
