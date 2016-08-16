@@ -10,6 +10,8 @@ from scipy.optimize import curve_fit
 from sunpy.physics.solar_rotation import mapcube_solar_derotate
 import scipy
 import batman
+from scipy.fftpack import fft, fftfreq, fftshift
+from scipy.interpolate import interp1d
 
 #Fixes a bug in sunpy.
 #This is fixed by https://github.com/sunpy/sunpy/pull/1853
@@ -1093,7 +1095,7 @@ def graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_o
                     time_block=[], 
                     show_events=False, label="", wavelength_name=True, new_figure=True, scale_to_one=True, shift=0, 
                     scale_to_one_based_on="max", 
-                    fontsize=10, numbersize=10):
+                    fontsize=10, numbersize=10, show_graph=True):
     '''
     `planet` is the planet transit to use
     
@@ -1137,7 +1139,9 @@ def graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_o
     
     `numbersize` is the size of the tick mark labels in the graphed light curve
 
-    Graphs the light curve
+    If `show_graph` is True, it graphs the light curve
+    
+    Returns a tuple of the array of times and the array of data values that were graphed
     '''
     
     def scaleDataToOutOfOne(planet, data, based_on="max", times=None):
@@ -1228,49 +1232,52 @@ def graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_o
     #apply shift
     pts = np.add(pts, shift)
     
-    if wavelength_name:
-        #Name the graph based on the wavelength
-        if wavelength == "cont":
-            data_name = "HMI Continuum"
+    if show_graph:
+        if wavelength_name:
+            #Name the graph based on the wavelength
+            if wavelength == "cont":
+                data_name = "HMI Continuum"
+            else:
+                data_name = "AIA " + wavelength + "Å"  
         else:
-            data_name = "AIA " + wavelength + "Å"  
-    else:
-        data_name = ""
-    data_name += " " + label
+            data_name = ""
+        data_name += " " + label
 
-    #Prepare the canvas
-    if new_figure:
-        fig = plt.figure(randint(0, 10000000 + 1))
-    axes = plt.gca()
+        #Prepare the canvas
+        if new_figure:
+            fig = plt.figure(randint(0, 10000000 + 1))
+        axes = plt.gca()
 
-    #Graph the light curve
-    light_curve = LightCurve.create({data_name: pts}, index = times)    
-    light_curve.plot(fontsize=numbersize)
+        #Graph the light curve
+        light_curve = LightCurve.create({data_name: pts}, index = times)    
+        light_curve.plot(fontsize=numbersize)
     
-    if new_figure:
-        plt.xlabel('Time (seconds)', fontsize=fontsize)
-        plt.ylabel('Brightness (percent)', fontsize=fontsize)
+        if new_figure:
+            plt.xlabel('Time (seconds)', fontsize=fontsize)
+            plt.ylabel('Brightness (percent)', fontsize=fontsize)
 
-        if planet == "venus":
-            fig.suptitle('Percent Brightness During the 2012 Venus Transit', fontsize=fontsize)
-        else:
-            fig.suptitle('Percent Brightness During the 2016 Mercury Transit', fontsize=fontsize)
+            if planet == "venus":
+                fig.suptitle('Percent Brightness During the 2012 Venus Transit', fontsize=fontsize)
+            else:
+                fig.suptitle('Percent Brightness During the 2016 Mercury Transit', fontsize=fontsize)
     
-    plt.legend(loc=2,prop={'size':fontsize})
+        plt.legend(loc=2,prop={'size':fontsize})
     
-    #Graph the different activities
-    if show_events:
-        #Ingress
-        plt.plot([ingress_start_time[planet], ingress_start_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
-        plt.plot([ingress_end_time[planet], ingress_end_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
+        #Graph the different activities
+        if show_events:
+            #Ingress
+            plt.plot([ingress_start_time[planet], ingress_start_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
+            plt.plot([ingress_end_time[planet], ingress_end_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
         
-        #Egress
-        plt.plot([egress_start_time[planet], egress_start_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
-        plt.plot([egress_end_time[planet], egress_end_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
+            #Egress
+            plt.plot([egress_start_time[planet], egress_start_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
+            plt.plot([egress_end_time[planet], egress_end_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
                   
-        if planet == "venus":
-            #Midnight
-            plt.plot([10800, 10800], [axes.get_ylim()[0], axes.get_ylim()[1]], 'g-')
+            if planet == "venus":
+                #Midnight
+                plt.plot([10800, 10800], [axes.get_ylim()[0], axes.get_ylim()[1]], 'g-')
+    
+    return (times, pts)
 
 def graphAmountCausedByDistance(planet, wavelength):
     '''
@@ -1296,7 +1303,7 @@ def graphAmountCausedByDistance(planet, wavelength):
     
 def graphLightCurveAdjusted(planet, wavelength, show_events=False, use_primary_curve_fit=True, use_secondary_curve_fit=True,
                          label="", wavelength_name=True, new_figure=True, scale_to_one=True, shift=0,
-                         force_primary_curve_fit=False, scale_to_one_based_on="max", fontsize=10, numbersize=10):
+                         force_primary_curve_fit=False, scale_to_one_based_on="max", fontsize=10, numbersize=10, show_graph=True):
     '''
     Parameters that are also in graphLightCurve behave in the same way
 
@@ -1304,7 +1311,7 @@ def graphLightCurveAdjusted(planet, wavelength, show_events=False, use_primary_c
 
     If `use_secondary_curve_fit` is True, uses a secondary linear curve fit to adjust the light curve
     
-    Returns the optimal values for the curve fit
+    Returns a tuple of the array of times and the array of data values that were graphed
     '''
     checkIfInWavelengths(wavelength)
     
@@ -1451,19 +1458,18 @@ def graphLightCurveAdjusted(planet, wavelength, show_events=False, use_primary_c
     
     #Actually graph the light curve, using the optimal values from the curve fit. 
     #It only uses the proper split
-    graphLightCurve(planet, wavelength, popt_one=popt_one, func_one=func_one, popt_two=popt_two, func_two=func_two, 
+    return graphLightCurve(planet, wavelength, popt_one=popt_one, func_one=func_one, popt_two=popt_two, func_two=func_two, 
                 split=inside_split, rotate=transit_rotate, show_events=show_events, label=label,
                 wavelength_name=wavelength_name, new_figure=new_figure, scale_to_one=scale_to_one, shift=shift,
-                scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize)
+                scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize, show_graph=show_graph)
     
-    return (popt_one,popt_two)
 
     
 def graphAllLightCurves(planet, split=no_split, rotate=no_rotate, time_block=[], show_events=False, label="", 
                         wavelength_name=True, 
                         new_figure=True, scale_to_one=True, remove=[], shift_up=False, all_new_figures=False, 
                         scale_to_one_based_on="max", 
-                        reverse=False, fontsize=10, numbersize=10):
+                        reverse=False, fontsize=10, numbersize=10, show_graph=True):
     '''
     Parameters that are also in graphLightCurve behave in the same way
     
@@ -1493,7 +1499,7 @@ def graphAllLightCurves(planet, split=no_split, rotate=no_rotate, time_block=[],
             graphLightCurve(planet, wavelength, new_figure=new_figure, show_events=show_events,
                             wavelength_name=wavelength_name, label=label,
                             scale_to_one=scale_to_one, time_block=time_block, split=split, rotate=rotate,
-                           scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize)
+                           scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize,  show_graph=show_graph)
             new_figure=all_new_figures
             show_events=all_new_figures
             
@@ -1502,7 +1508,7 @@ def graphAllLightCurvesAdjusted(planet, use_primary_curve_fit=True, use_secondar
                                 label="", 
                                 wavelength_name=True, new_figure=True, scale_to_one=True, remove=[], shift_up=False, 
                                 all_new_figures=False,
-                                scale_to_one_based_on="max", reverse=False, fontsize=10, numbersize=10):
+                                scale_to_one_based_on="max", reverse=False, fontsize=10, numbersize=10, show_graph=True):
     '''
     Parameters that are also in graphLightCurve, graphAllLightCurves, or graphLightCurveAdjusted behave in the same way
 
@@ -1528,14 +1534,14 @@ def graphAllLightCurvesAdjusted(planet, use_primary_curve_fit=True, use_secondar
                                  use_secondary_curve_fit=use_secondary_curve_fit,
                                  wavelength_name=wavelength_name, label=label,
                                  scale_to_one=scale_to_one, shift=shift,
-                                scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize)
+                                scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize,  show_graph=show_graph)
             new_figure=all_new_figures
             show_events=all_new_figures
     
 def graphWavelengthAndLimbDarkening(planet, wavelength, 
                                     limb_darkening_model="quadratic", limb_darkening_parameters=None, 
                                     depth=None, orbital_period_divider=11.3, semi_major_axis_const=14,
-                                    new_figure=True, show_wavelength=True):
+                                    new_figure=True, show_wavelength=True, show_graph=True):
     '''
     Parameters that are also in graphLightCurve behave in the same way
 
@@ -1587,7 +1593,7 @@ def graphWavelengthAndLimbDarkening(planet, wavelength,
         plt.plot(t, flux,label='Generated') #plots generated light curve
         if show_wavelength:
             #plots actual light curve
-            graphLightCurveAdjusted(planet,wavelength,new_figure=False, scale_to_one_based_on="not transit") 
+            graphLightCurveAdjusted(planet,wavelength,new_figure=False, scale_to_one_based_on="not transit", show_graph=show_graph) 
     else:
         raise Exception("graphWavelengthAndLimbDarkening not yet implemented for mercury")
 
@@ -1677,3 +1683,87 @@ def showDiffBetweenTwoTimes(planet, wavelength, file_one=None, file_two=None, ti
     
     return diff_image
 
+
+def getFourierFrequencyData(planet, wavelength, show_graph=True):
+    '''
+    `planet` is the planet transit to use
+    
+    `wavelength` is the wavelength to use
+    
+    If `show_graph` is True, it graphs the frequency data
+
+    Returns the result of a Fourier transform done on the planet and wavelength data
+    '''
+    
+    times, data  = graphLightCurveAdjusted(planet,wavelength,show_graph=False)
+
+    times = np.array(times,np.float64)
+    data  = np.array(data, np.float64)
+    data  = np.subtract(data,np.average(data))
+
+    seconds_between_points = 24
+
+    # number of signal points
+    N = int((max(times) - min(times)) / seconds_between_points)
+
+    x = np.linspace(min(times), max(times), N)
+    y = interp1d(times, data)(x)
+    yf = fft(y)
+    xf = fftfreq(N, seconds_between_points)
+    if show_graph:
+        xf_n = fftshift(xf)
+        yplot = fftshift(yf)
+        plt.figure()
+        plt.plot(xf_n, 1.0/N * np.abs(yplot))
+        plt.grid()
+        plt.show()
+    return (xf, yf)
+
+def getLowPassedData(planet, wavelength, show_graph=True):
+    '''
+    `planet` is the planet transit to use
+    
+    `wavelength` is the wavelength to use
+    
+    If `show_graph` is True, it graphs the low passed data
+
+    Returns the planet and wavelength data with a low pass filter applied
+    '''
+    
+    times, data  = graphLightCurveAdjusted(planet,wavelength,show_graph=False)
+
+    times = np.array(times,np.float64)
+    data  = np.array(data, np.float64)
+    data  = np.subtract(data,np.average(data))
+
+    seconds_between_points = 24
+
+    # number of signal points
+    N = int((max(times) - min(times)) / seconds_between_points)
+
+    x = np.linspace(min(times), max(times), N)
+    y = interp1d(times, data)(x)
+
+    fc = 0.03  # Cutoff frequency as a fraction of the sampling rate (in (0, 0.5)).
+    b = 0.02  # Transition band, as a fraction of the sampling rate (in (0, 0.5)).
+    N = int(np.ceil((4 / b)))
+    if not N % 2: N += 1  # Make sure that N is odd.
+    n = np.arange(N)
+
+    # Compute sinc filter.
+    h = np.sinc(2 * fc * (n - (N - 1) / 2.))
+
+    # Compute Blackman window.
+    w = np.blackman(N)
+
+    # Multiply sinc filter with window.
+    h = h * w
+
+    # Normalize to get unity gain.
+    h = h / np.sum(h)
+    y = np.convolve(y, h, mode='same')
+    y = np.add(y, data_average)
+    if show_graph:
+        plt.plot(x,y)
+        
+    return (x,y)

@@ -575,7 +575,9 @@ functions
     
     `numbersize` is the size of the tick mark labels in the graphed light curve
 
-    Graphs the light curve
+    If `show_graph` is True, it graphs the light curve
+
+    Returns a tuple of the array of times and the array of data values that were graphed
 
 
 
@@ -597,8 +599,8 @@ functions
 
     If `use_secondary_curve_fit` is True, uses a secondary linear curve fit to adjust the light curve
     
-    Returns the optimal values for the curve fit
-    
+    Returns a tuple of the array of times and the array of data values that were graphed
+
 
 
 - `graphAllLightCurves(planet, split=no_split, rotate=no_rotate, time_block=[], show_events=False, label="", wavelength_name=True, new_figure=True, scale_to_one=True, remove=[], shift_up=False, all_new_figures=False, scale_to_one_based_on="max")`
@@ -692,6 +694,35 @@ functions
     If `two_special` is True, the array is stored in the first section of the second file
 
     Returns the difference image
+
+
+
+Transformations of Data
+=============
+
+functions
+-------------
+
+
+- `getFourierFrequencyData(planet, wavelength, show_graph=True)`
+
+    `planet` is the planet transit to use
+    
+    `wavelength` is the wavelength to use
+    
+    If `show_graph` is True, it graphs the frequency data
+
+    Returns the result of a Fourier transform done on the planet and wavelength data
+
+- `getLowPassedData(planet, wavelength, show_graph=True)`
+
+    `planet` is the planet transit to use
+    
+    `wavelength` is the wavelength to use
+    
+    If `show_graph` is True, it graphs the low passed data
+
+    Returns the planet and wavelength data with a low pass filter applied
 
 
 
