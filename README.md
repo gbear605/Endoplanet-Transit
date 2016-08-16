@@ -349,7 +349,7 @@ Whole Wavelength Lists
 
     `wavelength` is the wavelength to use
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     Reads the saved data for that wavelength and gets the list of files from that
 
@@ -361,7 +361,7 @@ Whole Wavelength Lists
 
     `wavelength` is the wavelength to use
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     Reads the saved data for that wavelength and gets the list of (file, time) from that
 
@@ -373,7 +373,7 @@ Whole Wavelength Lists
 
     `wavelength` is the wavelength to use
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     Reads the saved data for that wavelength and gets the list of counts per second from that
 
@@ -385,7 +385,7 @@ Whole Wavelength Lists
 
     `wavelength` is the wavelength to use
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     Reads the saved data for that wavelength and gets the list of counts per second from that
 
@@ -397,7 +397,7 @@ Whole Wavelength Lists
 
     `wavelength` is the wavelength to use
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     Returns a list of the distance to the sun for all the files in the given wavelength
 
@@ -409,7 +409,7 @@ Whole Wavelength Lists
 
     `wavelength` is the wavelength to use
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     Returns a list of the data means for all the files in the given wavelength
 
@@ -421,7 +421,7 @@ Whole Wavelength Lists
 
     `wavelength` is the wavelength to use
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     Reads the saved data for that wavelength and gets the list of times from that
 
@@ -437,7 +437,7 @@ Whole Wavelength Lists
 
     `rotate` is the number of degrees to rotate the array by (counter clockwise)
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     Reads the saved data for that wavelength and gets the list of counts per second from that
 
@@ -453,7 +453,7 @@ Whole Wavelength Lists
 
     `rotate` is the number of degrees to rotate the array by (counter clockwise)
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     Returns a list of the number of pixels for all the files in the given wavelength
 
@@ -565,7 +565,7 @@ functions
 
     `popt_one` is an array of optimized parameters for `func_two `
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
     
     If `show_events` is True, the graph of the light curve includes lines for various events that happen during the transit
         Shows the ingress and egress with black lines
@@ -748,10 +748,14 @@ functions
 Time
 =============
 
-`time_block` is an array of strings ["transit"|"not transit"|"ingress"|"egress"|"not venus spike"]
+`time_block` is an array of ["transit"|"not transit"|"ingress"|"egress"|"not venus spike"|number]
+
+If it includes a string, it indicates to include times from that time period
+
+If it includes "not venus spike", it indicates to remove times from that time period
+
+If it includes number, it indicates only to use times before that number. This overrides everything else in time_block
        
-       
-"not venus spike" overrides using data during the venus spike
 
 constants
 -------------
@@ -824,7 +828,7 @@ functions
 
     `planet` is the planet transit to use
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to
    
     `time` is the time to check
 
@@ -836,7 +840,7 @@ functions
 
     `planet` is the planet transit to use
 
-    `time_block` is an array of strings to limit the list to (see section "Time")
+    `time_block` is an array to limit the list to (see section "Time")
 
     `data` is an array of generic data points that correspond with the time points in `times`
 
