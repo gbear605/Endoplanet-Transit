@@ -33,7 +33,6 @@ no_rotate = 0
 inside_split = {"venus":((32,[8]), (16,[3])),"mercury":((256,[159,160,161]), (256,[166,167,168]))}
 #The section of the sun that doesn't contain the transit
 outside_split = {"venus":(((32,range(8) + range(9,32)), (16,range(3) + range(4,16)))),"mercury":((256,range(159) + range(162,256)), ((256,range(166) + range(169,256))))}
-
 no_split = {"venus":(((1,[0]), (1,[0]))),"mercury":(((1,[0]), (1,[0])))}
 
 venus_spike_start_time = 9000 #in seconds, start of spike in 1700Å
@@ -265,36 +264,72 @@ def readFromFile(filepath):
         return {}
 
 
-def showImage(filepath):
+def showFancyImage(filepath, subplot=None, new_figure=True):
     '''
     `filepath` is a path to a FITS file
+
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
+
+    If `new_figure` is True, it creates a new matplotlib figure for the image
 
     It makes a sunpy map of the given file, and puts the map on screen
     
     Returns the map
     '''
-    img = sunpy.map.Map(filepath)
-    img.peek()
-    return img
 
-def showArray(array):
+    if new_figure:
+        plt.figure()
+
+    if subplot != None:
+        plt.subplot(subplot)
+
+    smap = sunpy.map.Map(filepath)
+    smap.plot()
+    return smap
+
+def showArray(array, subplot=None, new_figure=True):
     '''
     Graphs the given `array` in greyscale 
+
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
+
+    If `new_figure` is True, it creates a new matplotlib figure for the graphed array
+
+    Returns the array
     '''
     
-    plt.matshow(np.multiply(array,10), cmap='Greys')
+    if new_figure:
+        plt.figure()
+        
+    if subplot != None:
+        plt.subplot(subplot)
+        
+    plt.matshow(array, cmap='Greys')
+    
+    return array
     
 
-def showHistogramOfPixelIntensities(array, boxes=50):
+def showHistogramOfPixelIntensities(array, boxes=50, subplot=None, new_figure=True):
     '''
     Shows a histogram of elements of the given `array`
 
     `boxes` is the number of separate bars to sort the elements of the array into
     
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
+
+    If `new_figure` is True, it creates a new matplotlib figure for the histogram
+
     Note: uses lots of ram
         
     Returns the array, with all nan elements set to zero
     '''
+            
+    if new_figure:
+        plt.figure()
+        
+    if subplot != None:
+        plt.subplot(subplot)
+
     array = array[~np.isnan(array)]
     
     x = np.random.random_integers(0,10000000)
@@ -304,7 +339,7 @@ def showHistogramOfPixelIntensities(array, boxes=50):
     
     return array
 
-def showSplitOfImageFromFitsFile(filepath, split=no_split, rotate=no_rotate, replace_with_zero=False):
+def showImage(filepath, split=no_split, rotate=no_rotate, replace_with_zero=False, subplot=None, new_figure=True):
     '''
     `filepath` is a path to a FITS file
 
@@ -314,9 +349,19 @@ def showSplitOfImageFromFitsFile(filepath, split=no_split, rotate=no_rotate, rep
 
     If `replace_with_zero` is true, it will replace the removed elements of the array with zeros, otherwise it graphs a truncated array.
 
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
+
+    If `new_figure` is True, it creates a new matplotlib figure for the graphed array
+
     Graphs the array from the filepath, applying the split and rotate
     '''
-    
+            
+    if new_figure:
+        plt.figure()
+        
+    if subplot != None:
+        plt.subplot(subplot)
+
     array = getRotatedAndSplitArrayFromFitsFile(filepath, split, rotate, replace_with_zero=replace_with_zero)
     
     showArray(array)
@@ -1088,6 +1133,46 @@ def saveAllWavelengthData(planet, directory=personal_data_directory):
     for wavelength in wavelengths:
         saveDictData(planet, wavelength, directory)
         print "Saved data for" + wavelength
+            
+def saveAllWavelengthDataMultiThreaded(planet):
+    '''
+    `planet` is the planet transit to use
+
+    For all wavelengths, saves a dictionary of 
+        all the good files for the wavelength : 
+            (their counts per second, their time since start of transit)
+        to the data file for that wavelength
+
+        Each saved data file is named `planet`data`wavelength`.txt
+
+    Does this in multiple threads (see section "Multithreading")
+
+    Due to limitations of multithreading, the directory to save data to is the default one from saveDictData
+    '''
+
+    #It's so repetitive because putting stuff in a %job does weird stuff with the arguments
+    if planet == "venus":
+        get_ipython().magic(u'job [saveDictData("venus", "0094")]')
+        get_ipython().magic(u'job [saveDictData("venus", "0131")]')
+        get_ipython().magic(u'job [saveDictData("venus", "0171")]')
+        get_ipython().magic(u'job [saveDictData("venus", "0193")]')
+        get_ipython().magic(u'job [saveDictData("venus", "0211")]')
+        get_ipython().magic(u'job [saveDictData("venus", "0304")]')
+        get_ipython().magic(u'job [saveDictData("venus", "0335")]')
+        get_ipython().magic(u'job [saveDictData("venus", "1600")]')
+        get_ipython().magic(u'job [saveDictData("venus", "1700")]')
+        get_ipython().magic(u'job [saveDictData("venus", "cont")]')
+    else:
+        get_ipython().magic(u'job [saveDictData("mercury", "0094")]')
+        get_ipython().magic(u'job [saveDictData("mercury", "0131")]')
+        get_ipython().magic(u'job [saveDictData("mercury", "0171")]')
+        get_ipython().magic(u'job [saveDictData("mercury", "0193")]')
+        get_ipython().magic(u'job [saveDictData("mercury", "0211")]')
+        get_ipython().magic(u'job [saveDictData("mercury", "0304")]')
+        get_ipython().magic(u'job [saveDictData("mercury", "0335")]')
+        get_ipython().magic(u'job [saveDictData("mercury", "1600")]')
+        get_ipython().magic(u'job [saveDictData("mercury", "1700")]')
+        get_ipython().magic(u'job [saveDictData("mercury", "cont")]')
 
 
 def graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_one=[], func_one=None, popt_two=[], 
@@ -1095,7 +1180,7 @@ def graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_o
                     time_block=[], 
                     show_events=False, label="", wavelength_name=True, new_figure=True, scale_to_one=True, shift=0, 
                     scale_to_one_based_on="max", 
-                    fontsize=10, numbersize=10, show_graph=True):
+                    fontsize=10, numbersize=10, show_graph=True, subplot=None):
     '''
     `planet` is the planet transit to use
     
@@ -1140,6 +1225,8 @@ def graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_o
     `numbersize` is the size of the tick mark labels in the graphed light curve
 
     If `show_graph` is True, it graphs the light curve
+    
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
     
     Returns a tuple of the array of times and the array of data values that were graphed
     '''
@@ -1231,7 +1318,7 @@ def graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_o
 
     #apply shift
     pts = np.add(pts, shift)
-    
+
     if show_graph:
         if wavelength_name:
             #Name the graph based on the wavelength
@@ -1242,16 +1329,21 @@ def graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_o
         else:
             data_name = ""
         data_name += " " + label
-
+        
         #Prepare the canvas
         if new_figure:
-            fig = plt.figure(randint(0, 10000000 + 1))
-        axes = plt.gca()
-
+            fig = plt.figure()
+        else:
+            fig = plt.gcf()
+        if subplot == None:
+            axes = plt.gca()
+        else:
+            axes = fig.add_subplot(subplot)
+            
         #Graph the light curve
         light_curve = LightCurve.create({data_name: pts}, index = times)    
         light_curve.plot(fontsize=numbersize)
-    
+
         if new_figure:
             plt.xlabel('Time (seconds)', fontsize=fontsize)
             plt.ylabel('Brightness (percent)', fontsize=fontsize)
@@ -1260,19 +1352,19 @@ def graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_o
                 fig.suptitle('Percent Brightness During the 2012 Venus Transit', fontsize=fontsize)
             else:
                 fig.suptitle('Percent Brightness During the 2016 Mercury Transit', fontsize=fontsize)
-    
+
         plt.legend(loc=2,prop={'size':fontsize})
-    
+
         #Graph the different activities
         if show_events:
             #Ingress
             plt.plot([ingress_start_time[planet], ingress_start_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
             plt.plot([ingress_end_time[planet], ingress_end_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
-        
+
             #Egress
             plt.plot([egress_start_time[planet], egress_start_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
             plt.plot([egress_end_time[planet], egress_end_time[planet]], [axes.get_ylim()[0], axes.get_ylim()[1]], 'k-')
-                  
+
             if planet == "venus":
                 #Midnight
                 plt.plot([10800, 10800], [axes.get_ylim()[0], axes.get_ylim()[1]], 'g-')
@@ -1463,8 +1555,6 @@ def graphLightCurveAdjusted(planet, wavelength, show_events=False, use_primary_c
                 wavelength_name=wavelength_name, new_figure=new_figure, scale_to_one=scale_to_one, shift=shift,
                 scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize, show_graph=show_graph)
     
-
-    
 def graphAllLightCurves(planet, split=no_split, rotate=no_rotate, time_block=[], show_events=False, label="", 
                         wavelength_name=True, 
                         new_figure=True, scale_to_one=True, remove=[], shift_up=False, all_new_figures=False, 
@@ -1499,7 +1589,7 @@ def graphAllLightCurves(planet, split=no_split, rotate=no_rotate, time_block=[],
             graphLightCurve(planet, wavelength, new_figure=new_figure, show_events=show_events,
                             wavelength_name=wavelength_name, label=label,
                             scale_to_one=scale_to_one, time_block=time_block, split=split, rotate=rotate,
-                           scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize,  show_graph=show_graph)
+                           scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize, show_graph=show_graph)
             new_figure=all_new_figures
             show_events=all_new_figures
             
@@ -1534,7 +1624,7 @@ def graphAllLightCurvesAdjusted(planet, use_primary_curve_fit=True, use_secondar
                                  use_secondary_curve_fit=use_secondary_curve_fit,
                                  wavelength_name=wavelength_name, label=label,
                                  scale_to_one=scale_to_one, shift=shift,
-                                scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize,  show_graph=show_graph)
+                                scale_to_one_based_on=scale_to_one_based_on, fontsize=fontsize, numbersize=numbersize, show_graph=show_graph)
             new_figure=all_new_figures
             show_events=all_new_figures
     
@@ -1767,3 +1857,4 @@ def getLowPassedData(planet, wavelength, show_graph=True):
         plt.plot(x,y)
         
     return (x,y)
+

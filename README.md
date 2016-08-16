@@ -53,45 +53,63 @@ To change between inline pictures and separate windows for images, change the li
 functions
 -------------
 
-- `showImage(filepath)`
+- `showFancyImage(filepath, subplot=None, new_figure=True)`
 
 	`filepath` is a path to a FITS file
 
-	It makes a sunpy map of the given file, and puts the map on screen
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
+
+    If `new_figure` is True, it creates a new matplotlib figure for the image
+
+    It makes a sunpy map of the given file, and puts the map on screen
     
-	Returns the map
+    Returns the map
 
 
 
-- `showArray(array)`
+- `showArray(array, subplot=None, new_figure=True)`
 
-	Graphs the given `array` in greyscale 
+    Graphs the given `array` in greyscale
+
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
+
+    If `new_figure` is True, it creates a new matplotlib figure for the graphed array
+
+    Returns the array
 
 
 
-- `showHistogramOfPixelIntensities(array, boxes=50)`
+- `showHistogramOfPixelIntensities(array, boxes=50, subplot=None, new_figure=True)`
 
-	Shows a histogram of elements of the given `array`
+    Shows a histogram of elements of the given `array`
 
-	`boxes` is the number of separate bars to sort the elements of the array into
+    `boxes` is the number of separate bars to sort the elements of the array into
     
-	Note: uses lots of ram
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
+
+    If `new_figure` is True, it creates a new matplotlib figure for the histogram
+
+    Note: uses lots of ram
         
-	Returns the array, with all nan elements set to zero
+    Returns the array, with all nan elements set to zero
 
 
 
-- `showSplitOfImageFromFitsFile(filepath, split=no_split, rotate=no_rotate, replace_with_zero=False)`
+- `showImage(filepath, split=no_split, rotate=no_rotate, replace_with_zero=False, subplot=None, new_figure=True)`
 
-	`filepath` is a path to a FITS file
+    `filepath` is a path to a FITS file
 
-	`split` is the section of the array that is cared about (see section "Split and Rotate")
+    `split` is the section of the array that is cared about (see section "Split and Rotate")
 
-	`rotate` is the number of degrees to rotate the array by (counter clockwise)
+    `rotate` is the number of degrees to rotate the array by (counter clockwise)
 
-	If `replace_with_zero` is true, it will replace the removed elements of the array with zeros, otherwise it graphs a truncated array.
+    If `replace_with_zero` is true, it will replace the removed elements of the array with zeros, otherwise it graphs a truncated array.
 
-	Graphs the array from the filepath, applying the split and rotate
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
+
+    If `new_figure` is True, it creates a new matplotlib figure for the graphed array
+
+    Graphs the array from the filepath, applying the split and rotate
 
 
 
@@ -533,9 +551,9 @@ functions
 -------------
 
 
-- `graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_one=[], func_one=None, popt_two=[], func_two=None, time_block=[], show_events=False, label="", wavelength_name=True, new_figure=True, scale_to_one=True, shift=0, scale_to_one_based_on="max")`
+- `graphLightCurve(planet, wavelength, split=no_split, rotate=no_rotate, popt_one=[], func_one=None, popt_two=[], func_two=None, time_block=[], show_events=False, label="", wavelength_name=True, new_figure=True, scale_to_one=True, shift=0, scale_to_one_based_on="max", subplot=None)`
 
-    `planet` is the planet transit to use
+        `planet` is the planet transit to use
     
     `wavelength` is the wavelength to use
 
@@ -553,7 +571,9 @@ functions
 
     `time_block` is an array of strings to limit the list to (see section "Time")
     
-    If `show_events` is True, the graph of the light curve includes lines for various events that happen during the transit. Shows the ingress and egress with black lines. Shows midnight (venus transit only) with a green line
+    If `show_events` is True, the graph of the light curve includes lines for various events that happen during the transit
+        Shows the ingress and egress with black lines
+        Shows midnight (venus transit only) with a green line
 
     `label` is text to add to the end of the data name that goes in the legend
 
@@ -564,10 +584,10 @@ functions
     If `scale_to_one` is True, it scales the light curve to be on a scale of 0 to 1
 
     `scale_to_one_based_on` decides how to scale the light curve, if `scale_to_one` is True
-    - `"max"`         scales so that the maximum element is 1
-    - `"first"`       scales so that the first element is 1
-    - `"last"`        scales so that the last element is 1
-    - `"not transit"` scales so that the average not transit element is 1
+        "max"         scales so that the maximum element is 1
+        "first"       scales so that the first element is 1
+        "last"        scales so that the last element is 1
+        "not transit" scales so that the average not transit element is 1
 
     `shift` is added to every datapoint in the array
     
@@ -576,8 +596,11 @@ functions
     `numbersize` is the size of the tick mark labels in the graphed light curve
 
     If `show_graph` is True, it graphs the light curve
-
+    
+    `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
+    
     Returns a tuple of the array of times and the array of data values that were graphed
+
 
 
 
