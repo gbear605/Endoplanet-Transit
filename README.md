@@ -4,8 +4,6 @@ Endoplanet Transit
 Looks at transits between Earth and the Sun of Venus and Mercury
 
 
-The ipython notebook version offers more functionality 
-
 To get aggregated data, change `personal_data_directory` to the location of the aggregated data directory in this repository. To save new aggregated data, change `aia_data_directory` and `hmi_data_directory` to folders containing year data for those telescopes. These can be downloaded from [JSOC](http://jsoc.stanford.edu/). If using custom `aia_data_directory` and `hmi_data_directory`, you will likely need to save all wavelength data yourself instead of using aggregated data, unless your `aia_data_directory` and `hmi_data_directory` are the same as mine, since the aggregated data includes the absolute paths to those two directories.
 
 Saving and Reading Aggregated Data
@@ -47,7 +45,7 @@ functions
 Basic Graphical Tools
 =============
 
-To change between inline pictures and separate windows for images, change the line starting with %matplotlib to end with either inline, qt, osx, or gtx depending. This only works on the ipython notebook version
+To change between inline pictures and separate windows for images, change the line starting with %matplotlib to end with either inline, qt, osx, or gtx depending.
 
 
 functions
@@ -530,8 +528,6 @@ functions
 
 - `saveAllWavelengthDataMultiThreaded(planet)`
 
-	This requires use of ipython notebook version
-
     `planet` is the planet transit to use
 
     For all wavelengths, saves a dictionary of all the good files for the wavelength : (their counts per second, their time since start of transit) to the data file for that wavelength
@@ -991,7 +987,7 @@ data about Venus
 Multithreading
 =============
 
-This is based on ipython notebook features and thus only works in ipython notebook
+This is based on ipython notebook features
 
 functions
 -------------
