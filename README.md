@@ -22,13 +22,13 @@ functions
 
 
 
-- `writeToFile(filepath, dictionary)`
+- `writeToFile(filepath, data)`
 
 	`filepath` is the filepath to write to
 
-	`dictionary` is the dictionary to save
+	`data` is the data to save
 
-	Returns the dictionary
+	Returns `data`
 
 
 
@@ -65,9 +65,9 @@ functions
 
 
 
-- `showArray(array, subplot=None, new_figure=True)`
+- `showArray(array, subplot=None, new_figure=True, color_map='Greys')`
 
-    Graphs the given `array` in greyscale
+    Graphs the given `array` using the colors from `color_map`
 
     `subplot` is the argument passed into matplotlib's subplot function. If `subplot == None` then subplot is not used.
 
@@ -622,17 +622,19 @@ functions
 
 
 
-- `graphAllLightCurves(planet, split=no_split, rotate=no_rotate, time_block=[], show_events=False, label="", wavelength_name=True, new_figure=True, scale_to_one=True, remove=[], shift_up=False, all_new_figures=False, scale_to_one_based_on="max")`
+- `graphAllLightCurves(planet, split=no_split, rotate=no_rotate, time_block=[], show_events=False, label="", wavelength_name=True, new_figure=True, scale_to_one=True, remove=[], shift_up=False, all_new_figures=False, scale_to_one_based_on="max", shift_amount=0.0003)`
 
     Parameters that are also in graphLightCurve behave in the same way
     
-    If `shift_up` is True, graphs the light curves with 0.0003 gap between them
+    If `shift_up` is True, graphs the light curves with `shift_amount` gap between them
 
     If `all_new_figures` is True, graphs each light curve in a new figure, otherwise it graphs all the light curves in a single image
 
     `remove` is an array of wavelengths not to graph
 
-- `graphAllLightCurvesAdjusted(planet, use_primary_curve_fit=True, use_secondary_curve_fit=True, show_events=False, label="", wavelength_name=True, new_figure=True, scale_to_one=True, remove=[], shift_up=False, all_new_figures=False, scale_to_one_based_on="max")`
+
+
+- `graphAllLightCurvesAdjusted(planet, use_primary_curve_fit=True, use_secondary_curve_fit=True, show_events=False, label="", wavelength_name=True, new_figure=True, scale_to_one=True, remove=[], shift_up=False, all_new_figures=False, scale_to_one_based_on="max", shift_amount=0.0003)`
     
     Parameters that are also in graphLightCurve, graphAllLightCurves, or graphLightCurveAdjusted behave in the same way
 
@@ -649,6 +651,7 @@ functions
     Graphs the adjusted light curve and a predicted light curve based on the `limb_darkening_model` and `limb_darkening_parameters`
 
     If `limb_darkening_model` is "quadratic" and `limb_darkening_parameters` is None, it uses parameters from Allen's Astrophysical Quantities
+
 
 
 Functions that are of the form nth * x^n + n-1th * x^(n-1) + … + one * x + zero
@@ -723,7 +726,7 @@ functions
 -------------
 
 
-- `getFourierFrequencyData(planet, wavelength, show_graph=True, show_light_curve=False)`
+- `getFourierFrequencyData(planet, wavelength, show_graph=True, show_light_curve=False, seconds_between_points=24)`
 
     `planet` is the planet transit to use
     
@@ -733,11 +736,13 @@ functions
 
     If `show_light_curve` is True, it graphs the light curve that produced the frequency data
 
+    `seconds_between_points` is the number of seconds between data points used for interpolation. Decreasing this number increases the accuracy of the function but increases the processing time it takes to run the function.
+
     Returns the result of a Fourier transform done on the planet and wavelength data, the data's linear spacing and interpolated points, and the data's average
 
 
 
-- `getLowPassedData(planet, wavelength, show_graph=True, show_light_curve=True)`
+- `getLowPassedData(planet, wavelength, show_graph=True, show_light_curve=True, seconds_between_points=24)`
 
     `planet` is the planet transit to use
     
@@ -747,13 +752,15 @@ functions
 
     If `show_light_curve` is True, it graphs the light curve
 
+    `seconds_between_points` is the number of seconds between data points used for interpolation. Decreasing this number increases the accuracy of the function but increases the processing time it takes to run the function.
+
     Returns the planet and wavelength data with a low pass filter applied
 
     Source for this is [How to create a simple low pass filter](https://tomroelandts.com/articles/how-to-create-a-simple-low-pass-filter)
 
 
 
-- `getLowSquashedData(planet, wavelength, data_limit=0.0001, show_graph=True, show_light_curve=False, show_pre_change_frequency_graph=False, show_post_change_frequency_graph=False)`
+- `getLowSquashedData(planet, wavelength, data_limit=0.0001, show_graph=True, show_light_curve=False, show_pre_change_frequency_graph=False, show_post_change_frequency_graph=False, seconds_between_points=24, slope_adjust=1.15)`
 
     `planet` is the planet transit to use
 
@@ -768,6 +775,10 @@ functions
     If `show_pre_change_frequency_graph` is True, it graphs the unsquashed frequency data
 
     If `show_post_change_frequency_graph` is True, it graphs the squashed frequency data
+
+    `seconds_between_points` is the number of seconds between data points used for interpolation. Decreasing this number increases the accuracy of the function but increases the processing time it takes to run the function.
+
+    `slope_adjust` is a multiplier for the squashing. It helps to remove any ringing
 
     Returns the planet and wavelength data with the high frequency data squashed
 
