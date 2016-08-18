@@ -723,7 +723,7 @@ functions
 -------------
 
 
-- `getFourierFrequencyData(planet, wavelength, show_graph=True)`
+- `getFourierFrequencyData(planet, wavelength, show_graph=True, show_light_curve=False)`
 
     `planet` is the planet transit to use
     
@@ -731,9 +731,13 @@ functions
     
     If `show_graph` is True, it graphs the frequency data
 
-    Returns the result of a Fourier transform done on the planet and wavelength data
+    If `show_light_curve` is True, it graphs the light curve that produced the frequency data
 
-- `getLowPassedData(planet, wavelength, show_graph=True)`
+    Returns the result of a Fourier transform done on the planet and wavelength data, the data's linear spacing and interpolated points, and the data's average
+
+
+
+- `getLowPassedData(planet, wavelength, show_graph=True, show_light_curve=True)`
 
     `planet` is the planet transit to use
     
@@ -741,7 +745,31 @@ functions
     
     If `show_graph` is True, it graphs the low passed data
 
+    If `show_light_curve` is True, it graphs the light curve
+
     Returns the planet and wavelength data with a low pass filter applied
+
+    Source for this is [How to create a simple low pass filter](https://tomroelandts.com/articles/how-to-create-a-simple-low-pass-filter)
+
+
+
+- `getLowSquashedData(planet, wavelength, data_limit=0.0001, show_graph=True, show_light_curve=False, show_pre_change_frequency_graph=False, show_post_change_frequency_graph=False)`
+
+    `planet` is the planet transit to use
+
+    `wavelength` is the wavelength to use
+
+    `data_limit` is the frequency value above which all frequency data is squashed
+
+    If `show_graph` is True, it graphs the processed data
+
+    If `show_light_curve` is True, it graphs the light curve that produced the frequency data
+
+    If `show_pre_change_frequency_graph` is True, it graphs the unsquashed frequency data
+
+    If `show_post_change_frequency_graph` is True, it graphs the squashed frequency data
+
+    Returns the planet and wavelength data with the high frequency data squashed
 
 
 
