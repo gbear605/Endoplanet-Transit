@@ -833,8 +833,18 @@ constants
 
 
 
+- `hours = {"venus":["21","22","23","00","01","02","03","04","05"],"mercury":["10","11","12","13","14","15","16","17","18","19","20"]}`
+
+
+
 functions
 -------------
+
+
+- `checkIfInHours(hour, planet)`
+
+    Raises an exception if the given `hour` is not in the list of hours for the given `planet`
+
 
 
 - `timeSinceStartOfTransit(planet, time)`
